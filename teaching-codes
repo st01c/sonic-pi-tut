@@ -1,0 +1,309 @@
+
+/
+use_synth :fm
+
+play :C3, amp: 1;
+sleep 0.025;
+play 75;
+sleep 0.025;
+play 79;
+sleep 0.025;
+/
+
+/
+#good multi-synth chord
+use_synth :sine
+play 50, release: 1.5;
+sleep 0.25;
+use_synth :fm
+play 50, release: 1;
+sleep 0.25;
+use_synth :pretty_bell
+play 62, release: 1;
+sleep 0.25;
+/
+
+/
+play 60, attack: 0.5, attack_level: 0.5, decay: 0.2, sustain: 1, sustain_level: 0.5, release: 0.5;
+/
+
+/
+play sample :ambi_lunar_land;
+play 36;
+play 48, amp: 0.25;
+play sample :ambi_glass_rub, amp: 0.25, dur: 0.25;
+play sample :elec_blip
+/
+
+
+#play sample :loop_amen, attack: 0.75, release: 0.75, rate: 1;
+
+#play sample :drum_cymbal_open, attack: 0.01, sustain: 0.3, release: 0.1;
+
+#play sample :loop_amen, rate: 1, attack: 0.01, sustain: 0, release: 0.35, finish: 0.75;
+
+#play sample :loop_amen, start: 0.5, finish: 0.8, rate: -0.2, attack: 0.3, release: 1;
+
+#play rrand(50,100);
+
+#random sound in a loop
+/
+loop do
+  play rrand(50,100);
+  sleep 0.5;
+end
+/
+
+#randomization sample rate and pan
+/
+loop do
+  sample :perc_bell, rate: rrand(0.125, 1.5), pan: rrand(-1,1);
+  sleep rrand(0.2,2);
+end
+/
+
+/
+#randomization cutoff synth
+
+use_synth :tb303
+
+use_random_seed 40;
+5.times do
+  play 50, release: rrand(0,1.5), cutoff: rrand(60,120);
+  sleep 0.125;
+end
+/
+
+# lists: [60, 65, 72]
+# choose
+
+/
+loop do
+  play choose([60, 65, 72]);
+  sleep 1;
+end
+/
+
+# code blocks: do + end
+
+
+/
+3.times do
+  play 50;
+  sleep 0.5;
+  sample :elec_plip;
+  sleep 0.5;
+  play 62;
+end
+/
+
+/
+loop do
+  4.times do
+    play 50;
+    sleep 0.5;
+  end
+
+  8.times do
+    play 55, release: 0.2;
+    sleep 0.25;
+  end
+end
+/
+
+#nested iterations
+/
+loop do
+  sample :drum_heavy_kick;
+  #sleep 0.25;
+  2.times do
+    sample :elec_blip2, rate: rrand_i(0,4);
+    sleep 0.25;
+  end
+  sample :elec_snare;
+  4.times do
+    sample :drum_tom_mid_soft, attack: 0, sustain: 0, release: 0.3;
+    sleep 0.125;
+  end
+end
+/
+
+/
+#simple randomization if loop
+# plays a chord, different components played have different probability
+
+
+use_synth :dsaw;
+
+loop do
+  play 50, amp: 0.3, release: 2;
+  play 53, amp: 0.3, release: 2 if one_in(2);
+  play 57, amp: 0.3, release: 2 if one_in(3);
+  play 60, amp: 0.3, release: 2 if one_in(4);
+  sleep 1;
+end
+/
+
+/
+#threads!!!
+# will play up multiple loops simultaneously. each loop will have to have the 'in_thread do' (and 'end') operaters
+# the following also has a simple if-probability thing built in for the
+
+in_thread do
+  loop do
+    sample :drum_bass_soft;
+    sleep 1;
+  end
+end
+
+in_thread do
+  loop do
+    use_synth :beep
+    play 50, release: 0.25 if one_in(2);
+    sleep 0.25
+    play 53, release: 0.25 if one_in(2);
+    sleep 0.25
+    play 57, release: 0.25 if one_in(4);
+    sleep 0.25
+    play 60, release: 0.25;
+    sleep 0.25
+  end
+end
+
+in_thread do
+  loop do
+    use_synth :zawa
+    play 52, release: 2.5, phase: rrand_i(1,3), amp: 0.125;
+    sleep 2;
+  end
+end
+
+loop do
+  use_synth :fm;
+  play 50, release: 0.5;
+  sleep 0.5;
+end
+/
+
+
+/
+# scope of threads and parameters inside and outside of in_thread do functions
+
+play 50
+sleep 1
+
+in_thread do
+  use_synth :tb303
+  play 50, amp: 0.3;
+end
+
+sleep 1
+play 50
+/
+
+/
+# 'inheritance' within threads
+# Notice how the second note is played with the :tb303 synth
+# even though it was played from a separate thread?
+# Any of the settings modified with the various use_* functions will behave in the same way.
+# When threads are created, they inherit all the settings
+# from their parent but they don’t share any changes back.
+
+use_synth :tb303
+play 50
+sleep 1
+
+in_thread do
+  play 55
+end
+/
+
+#naming threads
+/
+in_thread(name: :bass) do
+  loop do
+    use_synth :prophet
+    play chord(:e2, :m7).choose, release: 0.6
+    sleep 0.5
+  end
+end
+
+in_thread(name: :drums) do
+  loop do
+    sleep 0.5
+    sample :elec_snare
+    sleep 0.5
+  end
+end
+/
+
+/
+loop do
+  play chord(:e3, :m7).choose
+  sleep 1
+end
+/
+
+/
+# naming threads is a good idea because SP will only trigger ONE iteration
+# (even if CMD-R hit mutiple times)
+
+in_thread(name: :amen) do
+  loop do
+    sample :loop_amen
+    sleep sample_duration :loop_amen
+  end
+end
+/
+
+# functions
+/
+define :foo do
+  play 50
+  sleep 1
+  play 55
+  sleep 2
+end
+/
+
+# now even if the details of the function are deleted, SP 'remembers it'
+/
+play foo
+sleep 1
+2.times do
+  foo
+end
+/
+
+# teach functions to accept arguments…
+/
+define :my_player do |sound|
+  play sound
+end
+
+my_player 80
+sleep 0.75
+my_player 82.5
+sleep 0.75
+/
+
+
+use_synth :dsaw
+define :chord_player do |root, repeats|
+  repeats.times do
+    play chord(root, :minor), release: 0.3
+    sleep 0.5
+  end
+end
+
+
+5.times do
+  chord_player :e3, 2
+  sleep 0.5
+  chord_player :a3, 4
+  chord_player :g3, 4
+  sleep 0.5
+  chord_player :e3, 2
+  sleep 1
+end
+
