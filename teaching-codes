@@ -1,4 +1,5 @@
 
+
 /
 use_synth :fm
 
@@ -287,7 +288,7 @@ my_player 82.5
 sleep 0.75
 /
 
-
+/
 use_synth :dsaw
 define :chord_player do |root, repeats|
   repeats.times do
@@ -305,5 +306,35 @@ end
   sleep 0.5
   chord_player :e3, 2
   sleep 1
+end
+/
+
+#SP crash… some code and exercises on variables missing
+
+#print sample_duration(:loop_breakbeat)
+#1.9047
+/
+sleepy = sample_duration(:loop_breakbeat)
+
+4.times do
+  play sample(:loop_breakbeat)
+  sleep sleepy*2
+end
+/
+# Q. why does the sleep command on samples start counting _right after the start of the
+# previous sample rather than at its end?
+
+
+# managing repetition in code with variable names
+
+sn = :loop_breakbeat
+zzz = sample_duration(sn)
+
+3.times do
+  sample sn
+  sleep zzz
+  sample sn, rate: 0.5
+  sleep zzz*2
+  sample sn
 end
 
