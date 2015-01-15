@@ -290,51 +290,237 @@ sleep 0.75
 
 /
 use_synth :dsaw
-define :chord_player do |root, repeats|
+define :chord_player do |chord, repeats|
   repeats.times do
-    play chord(root, :minor), release: 0.3
+    play chord(chord, :minor), release: 0.3
     sleep 0.5
   end
 end
 
-
-5.times do
-  chord_player :e3, 2
-  sleep 0.5
-  chord_player :a3, 4
-  chord_player :g3, 4
-  sleep 0.5
-  chord_player :e3, 2
-  sleep 1
-end
+chord_player :e3, 2
+sleep 0.5
+chord_player :a3, 3
+chord_player :g3, 4
+sleep 0.5
+chord_player :e3, 3
 /
 
 #SP crash… some code and exercises on variables missing
 
 #print sample_duration(:loop_breakbeat)
 #1.9047
-/
-sleepy = sample_duration(:loop_breakbeat)
 
+sleeptime = sample_duration(:loop_breakbeat)
+
+/
 4.times do
   play sample(:loop_breakbeat)
-  sleep sleepy*2
+  sleep sleeptime*1.5
 end
 /
+
 # Q. why does the sleep command on samples start counting _right after the start of the
 # previous sample rather than at its end?
-
+# A.
 
 # managing repetition in code with variable names
-
-sn = :loop_breakbeat
+/
+sn = :loop_garzul
 zzz = sample_duration(sn)
 
 3.times do
-  sample sn
+  sample sn, amp: 2
   sleep zzz
-  sample sn, rate: 0.5
-  sleep zzz*2
-  sample sn
+  sample sn, amp: 2, rate: -0.5, finish: 0.5
+  sleep zzz
+  sample sn, amp: 2
+  sleep zzz
+  sample sn, amp: 2, rate: 0.5, start: 0.5
+  sleep zzz
+end
+/
+
+/
+# define simple synths as functions, then 'control' their parameters
+
+s = play 60, release: 3
+sleep 2
+control s, note: 65
+
+# weird --- the release time is not captured and-or passed on to the controlled s
+/
+
+
+# synchronizing threads
+# 'cue' and 'sync'
+# 'cue' sends timing messages
+# other threads listen if primed with 'sync'
+
+/~~~~~~~~~/
+
+/
+# first thread starts cue signal - in this case sent every second (sleep 1)
+# follow-up threads have sync prompt built in
+
+in_thread do
+  loop do
+    cue :tick
+    sleep 1
+  end
+end
+
+in_thread do
+  loop do
+    sync :tick
+    sample :drum_heavy_kick
+  end
+end
+
+in_thread do
+  use_synth :dull_bell
+  loop do
+    sync :tick
+    sleep 0.5
+    play 60
+  end
+end
+/
+
+/~~~~~~~~~~~/
+
+/
+# test set-up that shows how the threads – even though started out of sync,
+# are shifted into phase
+
+in_thread do
+  loop do
+    cue :x
+    sleep 1
+  end
+end
+
+sleep(0.3)
+
+in_thread do
+  loop do
+    sync :x
+    sample :drum_bass_hard
+  end
+end
+/
+
+/
+# randomization using cue names!
+# only one cue is sent per round… whichever thread is synced to that one plays, the rest don't
+# this could be more fun if you do something with timing!
+
+in_thread do
+  loop do
+    cue [:foo, :bar, :baz].choose
+    sleep 0.5
+  end
+end
+
+in_thread do
+  loop do
+    sync :foo
+    sample :elec_beep
+  end
+end
+
+in_thread do
+  loop do
+    sync :bar
+    sample :elec_flip
+  end
+end
+
+in_thread do
+  loop do
+    sync :baz
+    sample :elec_blup
+  end
+end
+/
+
+/~~~~~~~~~~~/
+#FX
+# Effects work inside code blocks [do-end]
+# parameters can be passed into the code block to tweak the effect
+
+/
+in_thread(name: :one) do
+  with_fx :echo, phase: 0.125, decay: 2 do
+    play 60, amp: 2
+    sleep 0.5
+    sample :elec_plip
+    sleep 0.5
+    play 62
+  end
+end
+/
+
+/
+with_fx :reverb do
+  loop do
+    play 60, release: 0.1
+    sleep 0.125
+  end
+end
+/
+
+
+/~~~~~~~~~~~~~~/
+
+
+# live controlling -- controlling running sounds (single synths, within single runs)
+# this does not trigger 4 different synths, but modulates the first one!
+# the 'release: 3' is necessary because it's the 1st synth all along, stretched til the end!
+
+/
+s = play 60, release: 3
+sleep 0.5
+control s, note: 65
+sleep 0.5
+control s, note: 67
+sleep 3
+control s, note: 72
+/
+
+/
+# a parameter r is specified for the reverb effect
+# as we go along it is tweaked ('mix' is a parameter of the effect, so it is gradually changed)
+
+with_fx :reverb do |r|
+play 60
+sleep 0.5
+control r, mix: 0.7
+play 65
+sleep 1
+control r, mix: 0.9
+sleep 1
+play 68
+end
+/
+
+# sliding parameters
+/
+s = play 60, release: 8, note_slide: 3
+sleep 0.5
+control s, note: 65
+sleep 0.5
+control s, note: 67
+sleep 3
+control s, note: 72
+/
+
+# sliding parameters in FX:
+# initialize fx… pass an argument into it (phase), add slide command, declare parameter ||
+# play a synth
+# 
+with_fx :wobble, phase: 1, phase_slide: 5 do |e|
+use_synth :dsaw
+play 60, release: 5
+control e, phase: 0.025
 end
 
