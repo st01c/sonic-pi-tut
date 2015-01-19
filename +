@@ -1,0 +1,14 @@
+/
+# ++
+loop do
+play_pattern_timed chord([:D4,:E4,:F4,:E4,:E4].choose, :m7), [0.125, 0.25, 0.5]
+end
+/
+
+/
+# ++
+loop do
+play_pattern_timed chord([:D4,:E4,:F4,:E4,:E4].choose, :m13), [0.125, 0.25, 0.5]
+end
+/
+
