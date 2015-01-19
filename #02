@@ -1,3 +1,53 @@
+# LISTS
+# in square brackets…
+# adding a second square bracket with a single no indicates position within the list!
+/
+play [:E4, :G4, :B4], amp: 0.9
+/
+
+/
+use_synth :dull_bell
+with_fx :wobble do
+  play [52, 55, 59]
+end
+/
+
+/
+play chord(:E4, :minor)
+/
+
+# ARPEGGIOS!
+# (default 1 sleep between notes)
+
+/
+play_pattern chord(:E4, :m7)
+/
+
+# timed arpeggios
+
+/
+play_pattern_timed chord(:E4, :m7), 0.125
+/
+
+# pass a LIST of times – which it will circle through
+# great to experiment with
+
+/
+# ++
+loop do
+  play_pattern_timed chord([:D4,:E4,:F4,:E4,:E4].choose, :m7), [0.125, 0.25, 0.5]
+end
+/
+
+
+/
+# ++
+loop do
+  play_pattern_timed chord([:D4,:E4,:F4,:E4,:E4].choose, :m13), [0.125, 0.25, 0.5]
+end
+/
+
+
 # SCALES
 
 
