@@ -1,3 +1,4 @@
+
 # LISTS
 # in square brackets…
 # adding a second square bracket with a single no indicates position within the list!
@@ -50,14 +51,42 @@ end
 
 # SCALES
 
-
+/
 play_pattern_timed scale(:C4, :major_pentatonic, num_octaves: 3), 0.125, release: 0.15
+/
 
+# pick single note from chord
 
 /
-use_synth :tb303
+# ++
 loop do
-  play choose(chord:E3, :minor), release: 0.3, cutoff: rrand(60, 120)
+  play choose(chord(:E4, :m7))
   sleep 0.25
 end
 /
+
+/
+# ++
+use_synth :mod_pulse
+loop do
+  play choose(chord(:E3, :minor)), release: 0.3, cutoff: rrand(60, 120)
+  sleep 0.25
+end
+/
+
+# LIVE
+# simply use named threads so that no additional 'layer' will be added when re-running!
+
+define :my_loop do
+  use_synth :dull_bell
+  with_fx :reverb, room: 0.8 do
+  play chord(:C4, :minor), release: 0.3
+  sleep 1
+  end
+end
+
+in_thread(name: :looper) do
+  loop do
+    my_loop
+  end
+end
