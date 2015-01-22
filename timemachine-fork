@@ -1,0 +1,32 @@
+#adopted from Sam Aaron's video jam (https://vimeo.com/114323834)
+
+live_loop :time do
+  synth :prophet, release: 8, note: :e1, cutoff: rrand_i(60,120)
+  sleep 8
+end
+
+live_loop :machine do
+  sync :time
+  sample :loop_garzul, amp: 0.7, rate: 0.5
+  sleep 8
+end
+
+live_loop :moon_bass do
+  sync :time
+  use_random_seed 500
+  use_synth :fm
+#  with_fx :echo do
+    s = scale(:e3, :minor_pentatonic, num_octaves: 2)
+    64.times do
+      play s.choose, release: 0.1
+      sleep 0.125
+    end
+#  end
+end
+
+
+live_loop :kick do
+  #sync :time
+  sample :drum_bass_hard, amp: 2
+  sleep 0.5
+end
