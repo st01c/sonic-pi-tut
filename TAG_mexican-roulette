@@ -1,5 +1,6 @@
 #########################
-# final code post-Mexican roulette 101
+# what we ended up with after everyone's 1st every Mexican roulette
+# @ TAG, Jan 23, 2015
 
 live_loop :s do
   sync :b
