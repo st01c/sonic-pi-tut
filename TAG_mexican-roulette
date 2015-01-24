@@ -17,13 +17,13 @@ end
 
 with_fx :echo, phase: 0.1 do
   live_loop :b do
-    2.times do
+    7.times do
       sample :bass_trance_c, amp: 2
       use_synth :beep
       #play 40, release: 0.5, amp: 2
       sleep 0.5
     end
-    2.times do
+    5.times do
       sample :elec_blip2, amp: 2
       #play choose.(50,53,56) #THIS IS WHAT BROKE IT IN THE END!
       sleep 0.125
