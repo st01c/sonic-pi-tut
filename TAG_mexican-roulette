@@ -25,7 +25,7 @@ with_fx :echo, phase: 0.1 do
     end
     2.times do
       sample :elec_blip2, amp: 2
-      play choose.(50,53,56) #this is what broke it
+      #play choose.(50,53,56) #THIS IS WHAT BROKE IT IN THE END!
       sleep 0.125
     end
   end
